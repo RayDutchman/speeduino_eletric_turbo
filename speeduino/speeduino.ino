@@ -187,7 +187,7 @@ void loop(void)
       VVT1_PIN_LOW();
       VVT2_PIN_LOW();
       DISABLE_VVT_TIMER();
-      boostDisable();
+      //避免运行boostDisable();
       if(configPage4.ignBypassEnabled > 0) { digitalWrite(pinIgnBypass, LOW); } //Reset the ignition bypass ready for next crank attempt
     }
     //***Perform sensor reads***
