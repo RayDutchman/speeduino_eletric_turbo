@@ -237,6 +237,7 @@ byte pinAirConFan;    // Stand-alone air conditioning fan output (See: auxiliari
 byte pinAirConRequest;  // Air conditioning request input (See: auxiliaries.ino)
 
 struct statuses currentStatus; /**< The master global "live" status struct. Contains all values that are updated frequently and used across modules */
+struct statuses2 currentStatus2; /**< Added for Missing Tooth Map trigger. */
 struct config2 configPage2;
 struct config4 configPage4;
 struct config6 configPage6;

@@ -75,5 +75,6 @@ void readBat(void);
 void readBaro(void);
 void readMAP(void);
 void instanteneousMAPReading(void);
+void averageMAPReading(void); //Added for Missing Tooth Map trigger
 
 #endif // SENSORS_H

@@ -698,6 +698,13 @@ struct statuses {
   byte airConStatus;
 };
 
+struct statuses2 {
+  uint16_t instanteneousMapADC;
+  long instanteneousMAP;     ///< Instanteneous manifold absolute pressure.
+  uint16_t cycleAverageMapADC;
+  long cycleAverageMAP;     ///< Average manifold absolute pressure.
+};
+
 static inline bool HasAnySync(const statuses &status) {
   return status.hasSync || BIT_CHECK(status.status3, BIT_STATUS3_HALFSYNC);
 }
@@ -1539,6 +1546,7 @@ extern byte pinAirConRequest; // Air conditioning request input
 //#endif
 
 extern struct statuses currentStatus; //The global status object
+extern struct statuses2 currentStatus2; //The global status object
 extern struct config2 configPage2;
 extern struct config4 configPage4;
 extern struct config6 configPage6;

@@ -24,6 +24,9 @@ A full copy of the license may be found in the projects root directory
 uint32_t MAPcurRev; //Tracks which revolution we're sampling on
 unsigned int MAPcount; //Number of samples taken in the current MAP cycle
 unsigned long MAPrunningValue; //Used for tracking either the total of all MAP readings in this cycle (Event average) or the lowest value detected in this cycle (event minimum)
+uint32_t MAPcurRev2; //Added for Missing Tooth Map trigger
+unsigned int MAPcount2; //Added for Missing Tooth Map trigger
+unsigned long MAPrunningValue2; //Added for Missing Tooth Map trigger
 unsigned long EMAPrunningValue; //As above but for EMAP
 bool auxIsEnabled;
 uint16_t MAPlast; /**< The previous MAP reading */
@@ -45,6 +48,7 @@ byte mapErrorCount = 0;
 //byte cltErrorCount = 0; Not used
 
 static inline void validateMAP(void);
+static inline void validateCycleAverageMAP(void);
 
 #if defined(ANALOG_ISR)
 static volatile uint16_t AnChannel[16];
@@ -126,6 +130,9 @@ void initialiseADC(void)
   MAPcurRev = 0;
   MAPcount = 0;
   MAPrunningValue = 0;
+  MAPcurRev2 = 0;
+  MAPcount2 = 0;
+  MAPrunningValue2 = 0;
 
   //The following checks the aux inputs and initialises pins if required
   auxIsEnabled = false;
@@ -221,6 +228,32 @@ static inline void validateMAP(void)
   }
 }
 
+static inline void validateCycleAverageMAP(void)
+{
+  //Error checks
+  if(currentStatus2.cycleAverageMAP < VALID_MAP_MIN)
+  {
+    currentStatus2.cycleAverageMAP = ERR_DEFAULT_MAP_LOW;
+    mapErrorCount += 1;
+    setError(ERR_MAP_LOW);
+  }
+  else if(currentStatus2.cycleAverageMAP > VALID_MAP_MAX)
+  {
+    currentStatus2.cycleAverageMAP = ERR_DEFAULT_MAP_HIGH;
+    mapErrorCount += 1;
+    setError(ERR_MAP_HIGH);
+  }
+  else
+  {
+    if(errorCount > 0)
+    {
+      clearError(ERR_MAP_HIGH);
+      clearError(ERR_MAP_LOW);
+    }
+    mapErrorCount = 0;
+  }
+}
+
 void instanteneousMAPReading(void)
 {
   //Update the calculation times and last value. These are used by the MAP based Accel enrich
@@ -267,6 +300,55 @@ void instanteneousMAPReading(void)
     if(currentStatus.EMAP < 0) { currentStatus.EMAP = 0; } //Sanity check
   }
 
+}
+
+void averageMAPReading(void)
+{
+  unsigned int tempReading;
+  if (BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN)) //If the engine is running, we can do average MAP reading.
+  {
+    if( (MAPcurRev2 == currentStatus.startRevolutions) || ( (MAPcurRev2+1) == currentStatus.startRevolutions) ) //2 revolutions are looked at for 4 stroke. 2 stroke not currently catered for.
+    {
+      #if defined(ANALOG_ISR_MAP)
+        tempReading = AnChannel[pinMAP-A0];
+      #else
+        tempReading = analogRead(pinMAP);
+        tempReading = analogRead(pinMAP);
+      #endif
+
+      //Error check
+      if( (tempReading < VALID_MAP_MAX) && (tempReading > VALID_MAP_MIN) )
+      {
+        currentStatus2.instanteneousMapADC = ADC_FILTER(tempReading, configPage4.ADCFILTER_MAP, currentStatus2.instanteneousMapADC); // Caution: Doing this also changes currentStatus2.instanteneousMapADC
+        currentStatus2.instanteneousMAP = fastMap10Bit(currentStatus2.instanteneousMapADC, configPage2.mapMin, configPage2.mapMax); //Get the current MAP value
+        MAPrunningValue2 += currentStatus2.instanteneousMapADC; //Add the current reading onto the total
+        MAPcount2++;
+      }
+      else { mapErrorCount += 1; }
+    }
+    else
+    {
+      //Reaching here means that the last cycle has completed and the MAP value should be calculated
+      //Sanity check
+      if( (MAPrunningValue2 != 0) && (MAPcount2 != 0) )
+      {
+        currentStatus2.cycleAverageMapADC = udiv_32_16(MAPrunningValue2, MAPcount2);
+        currentStatus2.cycleAverageMAP = fastMap10Bit(currentStatus2.cycleAverageMapADC, configPage2.mapMin, configPage2.mapMax); //Get the current MAP value
+        validateCycleAverageMAP();
+      }
+      else { currentStatus2.cycleAverageMAP = 0; }
+      MAPcurRev2 = currentStatus.startRevolutions;
+      MAPrunningValue2 = 0;
+      MAPcount2 = 0;
+    }
+  }
+  else 
+  {
+    currentStatus2.cycleAverageMAP = 0;
+    MAPcurRev2 = 0;
+    MAPrunningValue2 = 0;
+    MAPcount2 = 0;
+  }
 }
 
 void readMAP(void)
@@ -464,6 +546,19 @@ void readMAP(void)
     //Instantaneous MAP readings (Just in case)
     instanteneousMAPReading();
     break;
+  }
+  
+  /*
+  if Sequential fuel or ignition is in use, and in halfsync status, and RPM below 10000, we do the following.
+  */
+  if((configPage4.sparkMode == IGN_MODE_SEQUENTIAL) || (configPage2.injLayout == INJ_SEQUENTIAL) && (configPage4.TrigPattern == DECODER_MISSING_TOOTH_MAP) && BIT_CHECK(currentStatus.status3, BIT_STATUS3_HALFSYNC) && (currentStatus.RPM < 10000)) 
+  {
+    tempReading = currentStatus2.instanteneousMAP;
+    averageMAPReading(); //this will do the instanteneous MAP Reading too.
+    if((currentStatus2.cycleAverageMAP > 0) && (tempReading > currentStatus2.cycleAverageMAP) && (currentStatus2.instanteneousMAP <= currentStatus2.cycleAverageMAP)) //This is the point of which the MAP drops below average MAP of last cycle
+    {
+      triggerSec_missingToothMAP();
+    }
   }
 }
 
