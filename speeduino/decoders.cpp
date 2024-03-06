@@ -804,10 +804,6 @@ void triggerSetEndTeeth_missingTooth(void)
 #endif
 }
 
-void triggerSetup_missingToothMAP(void) { triggerSetup_missingTooth(); }
-
-void triggerPri_missingToothMAP(void) { triggerPri_missingTooth(); }
-
 void triggerSec_missingToothMAP(void)
 {
   curTime2 = micros();
@@ -829,11 +825,5 @@ void triggerSec_missingToothMAP(void)
     toothLastSecToothTime = curTime2;
   }
 }
-
-uint16_t getRPM_missingToothMAP(void) { getRPM_missingTooth(); }
-
-int getCrankAngle_missingToothMAP(void) { getCrankAngle_missingToothMAP(); }
-
-extern void triggerSetEndTeeth_missingToothMAP(void) { triggerSetEndTeeth_missingTooth(); }
 
 /** @} */

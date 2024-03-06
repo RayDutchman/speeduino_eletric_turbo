@@ -1390,7 +1390,7 @@ void setPinMapping(byte boardID)
       pinTrigger2 = 21; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2; //TPS input pin
-      pinMAP = A3; //MAP sensor pin
+      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
@@ -1420,11 +1420,11 @@ void setPinMapping(byte boardID)
       pinCoil3 = 40; //Pin for coil 3
       pinCoil4 = 36; //Pin for coil 4
       pinCoil5 = 34; //Pin for coil 5 PLACEHOLDER value for now
-      pinTrigger = 15; //The CAS pin, temporarily changed to A8 for testing
+      pinTrigger = 19; //The CAS pin
       pinTrigger2 = 18; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2;//TPS input pin
-      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing
+      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
@@ -1474,11 +1474,11 @@ void setPinMapping(byte boardID)
       pinCoil3 = 52; //Pin for coil 3
       pinCoil4 = 50; //Pin for coil 4
       pinCoil5 = 34; //Pin for coil 5 PLACEHOLDER value for now
-      pinTrigger = 15; //The CAS pin, temporarily changed to A8 for testing
+      pinTrigger = 19; //The CAS pin
       pinTrigger2 = 18; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2;//TPS input pin
-      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing
+      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
@@ -3262,13 +3262,13 @@ void initialiseTriggers(void)
 
     case DECODER_MISSING_TOOTH_MAP:
       //Missing tooth decoder with MAP as secondary trigger
-      triggerSetup_missingToothMAP();
-      triggerHandler = triggerPri_missingToothMAP;
+      triggerSetup_missingTooth();
+      triggerHandler = triggerPri_missingTooth;
       triggerSecondaryHandler = triggerSec_missingToothMAP;
       
-      getRPM = getRPM_missingToothMAP;
-      getCrankAngle = getCrankAngle_missingToothMAP;
-      triggerSetEndTeeth = triggerSetEndTeeth_missingToothMAP;
+      getRPM = getRPM_missingTooth;
+      getCrankAngle = getCrankAngle_missingTooth;
+      triggerSetEndTeeth = triggerSetEndTeeth_missingTooth;
 
       if(configPage4.TrigEdge == 0) { primaryTriggerEdge = RISING; } // Attach the crank trigger wheel interrupt (Hall sensor drags to ground when triggering)
       else { primaryTriggerEdge = FALLING; }
