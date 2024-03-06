@@ -1390,7 +1390,7 @@ void setPinMapping(byte boardID)
       pinTrigger2 = 21; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2; //TPS input pin
-      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
+      pinMAP = A3; //MAP sensor pin
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
@@ -1424,7 +1424,7 @@ void setPinMapping(byte boardID)
       pinTrigger2 = 18; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2;//TPS input pin
-      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
+      pinMAP = A3; //MAP sensor pin
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
@@ -1478,7 +1478,7 @@ void setPinMapping(byte boardID)
       pinTrigger2 = 18; //The Cam Sensor pin
       pinTrigger3 = 3; //The Cam sensor 2 pin
       pinTPS = A2;//TPS input pin
-      pinMAP = A8; //MAP sensor pin, temporarily changed to A8 for testing, was A3 originally
+      pinMAP = A3; //MAP sensor pin
       pinIAT = A0; //IAT sensor pin
       pinCLT = A1; //CLS sensor pin
       pinO2 = A8; //O2 Sensor pin
